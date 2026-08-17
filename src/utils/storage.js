@@ -1,11 +1,12 @@
 // Safe LocalStorage Persistence Utility with in-memory fallback
 
 const MEMORY_STORAGE = {};
+const STORAGE_PREFIX = 'apex_school_v2_';
 
 export function loadState(key, fallbackValue) {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const serialized = window.localStorage.getItem(`apex_school_${key}`);
+      const serialized = window.localStorage.getItem(`${STORAGE_PREFIX}${key}`);
       if (serialized === null) {
         return fallbackValue;
       }
@@ -20,7 +21,7 @@ export function loadState(key, fallbackValue) {
 export function saveState(key, value) {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(`apex_school_${key}`, JSON.stringify(value));
+      window.localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(value));
     }
   } catch (err) {
     console.warn(`Error saving ${key} to localStorage:`, err);

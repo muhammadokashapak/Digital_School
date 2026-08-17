@@ -28,34 +28,28 @@ import NotificationModal from './components/NotificationModal';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
 
 const INITIAL_ACCOUNTS = [
-  { id: 'U101', name: 'Ali Ahmed', email: 'ali.ahmed@apexdigital.edu', role: 'STUDENT', grade: 'Class 9-A', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U102', name: 'Prof. Sarah Khan', email: 'sarah.khan@apexdigital.edu', role: 'TEACHER', grade: 'Math Faculty', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U103', name: 'Tariq Ahmed', email: 'tariq.ahmed@gmail.com', role: 'PARENT', grade: 'Guardian of Ali', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U104', name: 'Dr. Kamran Malik', email: 'principal@apexdigital.edu', role: 'PRINCIPAL', grade: 'Principal Office', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U105', name: 'Super Administrator', email: 'admin@apexdigital.edu', role: 'SUPER_ADMIN', grade: 'System Owner', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U106', name: 'Zahid Hussain', email: 'accounts@apexdigital.edu', role: 'ACCOUNTANT', grade: 'Finance Dept', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U107', name: 'Muhammad Aslam', email: 'transport@apexdigital.edu', role: 'TRANSPORT', grade: 'Logistics Head', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U108', name: 'Ms. Rabia Tariq', email: 'hr@apexdigital.edu', role: 'HR', grade: 'HR Director', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U109', name: 'School Admin', email: 'school.admin@apexdigital.edu', role: 'SCHOOL_ADMIN', grade: 'Operations Dept', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U110', name: 'Exam Officer', email: 'exams@apexdigital.edu', role: 'EXAMINATION', grade: 'Assessment Dept', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80', password: 'password123' },
-  { id: 'U111', name: 'Librarian', email: 'library@apexdigital.edu', role: 'LIBRARY', grade: 'Resources Dept', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80', password: 'password123' }
+  { 
+    id: 'USR-ADMIN-1', 
+    name: 'Muhammad Okasha', 
+    email: 'muhammad.okasha2146@gmail.com', 
+    role: 'SUPER_ADMIN', 
+    grade: 'Director & Super Administrator', 
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80', 
+    password: 'greenpakistan2' 
+  }
 ];
 
 const INITIAL_NOTIFICATIONS = [
-  { id: 'N1', title: 'Mid-Term Examination Schedule Announced', text: 'Class 9-A Mid-Term examinations start on Sep 10th. Detailed date sheet published on portal.', category: 'EXAM', priority: 'HIGH', read: false, time: '10 mins ago' },
-  { id: 'N2', title: 'AI Assistant & Tutor Engine Updated', text: 'Physics and Mathematics modules updated with 2026 practice problem sets & auto-rubrics.', category: 'AI_ALERT', priority: 'NORMAL', read: false, time: '1 hour ago' },
-  { id: 'N3', title: 'Parent Circular: Annual Sports Day', text: 'Annual Inter-School Sports Gala registration is open until September 5th.', category: 'ACADEMIC', priority: 'NORMAL', read: false, time: '3 hours ago' },
-  { id: 'N4', title: 'Quarterly Tuition Fee Invoice Issued', text: 'Q3 tuition fee vouchers have been generated for Class 9-A students. Due date: 28 Aug.', category: 'FEE', priority: 'HIGH', read: true, time: 'Yesterday' },
-  { id: 'N5', title: 'Teacher Faculty Meeting Reminder', text: 'Monthly faculty meeting scheduled for tomorrow at 2:00 PM in Conference Room B.', category: 'ACADEMIC', priority: 'NORMAL', read: true, time: '2 days ago' }
+  { id: 'N1', title: 'System Initialized Successfully', text: 'Welcome Director Muhammad Okasha. You can now configure school settings and enroll students.', category: 'ACADEMIC', priority: 'HIGH', read: false, time: 'Just now' }
 ];
 
 // Strict Role-Based Access Control Mapping for Tabs
 const TAB_PERMISSIONS = {
   dashboard: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT', 'EXAMINATION', 'LIBRARY', 'TRANSPORT', 'HR'],
-  classes: ['TEACHER'],
-  courses: ['TEACHER'],
-  assessments: ['TEACHER'],
-  gradebook: ['TEACHER'],
+  classes: ['TEACHER', 'SUPER_ADMIN'],
+  courses: ['TEACHER', 'SUPER_ADMIN'],
+  assessments: ['TEACHER', 'SUPER_ADMIN'],
+  gradebook: ['TEACHER', 'SUPER_ADMIN'],
   lms: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL', 'STUDENT', 'TEACHER'],
   attendance: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL'],
   exams: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL', 'STUDENT', 'EXAMINATION'],
@@ -89,7 +83,7 @@ export default function App() {
   // Auth & Session State
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUserAccount, setCurrentUserAccount] = useState(null);
-  const [currentRole, setCurrentRole] = useState('STUDENT');
+  const [currentRole, setCurrentRole] = useState('SUPER_ADMIN');
   const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState('dashboard');

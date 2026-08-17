@@ -239,47 +239,57 @@ export default function LoginScreen({
             </div>
           </div>
 
-          {/* 1-Click Quick Demo Personas Showcase */}
+          {/* 1-Click Super Admin Access Showcase */}
           <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.18)', paddingTop: '1.5rem', position: 'relative', zIndex: 2 }}>
             <div style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#a7f3d0', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <Sparkles size={14} style={{ color: '#fde047' }} />
-              <span>Instant 1-Click Demo Accounts Selector</span>
+              <span>Super Administrator Access</span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.65rem' }}>
-              {userAccounts.slice(0, 6).map(acc => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {userAccounts.map(acc => (
                 <div
                   key={acc.id}
-                  onClick={() => onLogin(acc)}
+                  onClick={() => {
+                    setEmail(acc.email);
+                    setPassword(acc.password || 'greenpakistan2');
+                    onLogin(acc);
+                  }}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.12)',
-                    border: '1px solid rgba(255, 255, 255, 0.22)',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    border: '1px solid rgba(52, 211, 153, 0.5)',
                     borderRadius: '12px',
-                    padding: '0.6rem 0.75rem',
+                    padding: '0.85rem 1rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.6rem',
+                    justifyContent: 'space-between',
+                    gap: '0.85rem',
                     transition: 'all 0.25s ease',
                     backdropFilter: 'blur(10px)',
                     color: '#ffffff'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = '#34d399';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.22)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.22)';
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.5)';
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  <img src={acc.avatar} alt={acc.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #34d399' }} />
-                  <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.78rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: '#ffffff' }}>{acc.name}</div>
-                    <div style={{ fontSize: '0.68rem', color: '#a7f3d0', fontWeight: 500 }}>{acc.role}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <img src={acc.avatar} alt={acc.name} style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', border: '2px solid #34d399' }} />
+                    <div>
+                      <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#ffffff' }}>{acc.name}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#a7f3d0', fontWeight: 600 }}>{acc.email}</div>
+                    </div>
                   </div>
+                  <span className="badge badge-emerald" style={{ fontSize: '0.72rem', padding: '0.3rem 0.6rem' }}>
+                    {acc.role}
+                  </span>
                 </div>
               ))}
             </div>
@@ -399,7 +409,7 @@ export default function LoginScreen({
                   <Mail size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: isDarkMode ? '#94a3b8' : '#64748b' }} />
                   <input 
                     type="text" 
-                    placeholder="e.g. ali.ahmed@apexdigital.edu" 
+                    placeholder="muhammad.okasha2146@gmail.com" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     style={{
