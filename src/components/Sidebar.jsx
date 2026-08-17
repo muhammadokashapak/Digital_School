@@ -35,6 +35,17 @@ export default function Sidebar({ activeTab, setActiveTab, currentRole }) {
     { id: 'communication', label: 'System Announcements', icon: MessageSquare, roles: ['SUPER_ADMIN'] }
   ];
 
+  const teacherMenuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['TEACHER'] },
+    { id: 'classes', label: 'My Classes', icon: Users, roles: ['TEACHER'] },
+    { id: 'courses', label: 'My Courses', icon: BookOpen, roles: ['TEACHER'] },
+    { id: 'assessments', label: 'Assessments', icon: CheckSquare, roles: ['TEACHER'] },
+    { id: 'gradebook', label: 'Gradebook', icon: FileSpreadsheet, roles: ['TEACHER'] },
+    { id: 'live-class', label: 'Live Studio 🎥', icon: Video, roles: ['TEACHER'] },
+    { id: 'communication', label: 'Messages', icon: MessageSquare, roles: ['TEACHER'] },
+    { id: 'ai-hub', label: 'AI Assistant', icon: Bot, roles: ['TEACHER'] }
+  ];
+
   const menuItems = currentRole === 'TEACHER' 
     ? teacherMenuItems 
     : currentRole === 'SUPER_ADMIN' 
