@@ -93,22 +93,14 @@ graph TD
 
 ---
 
-## 🔑 Demo Login Credentials
+## 🔑 Super Administrator Credentials
 
-You can test any role immediately by using the **Quick Role Switcher** in the top navigation bar or using the credentials on the Login screen:
+| Role | Email | Password | Name | Designation |
+|:-----|:------|:---------|:-----|:------------|
+| 👑 **Super Admin** | `muhammad.okasha2146@gmail.com` | `greenpakistan2` | **Muhammad Okasha** | Director & System Owner |
 
-| Role | Email | Password | Name |
-|:-----|:------|:---------|:-----|
-| 🎓 **Student** | `student@school.com` | `student123` | Ali Ahmed (Class 9-A) |
-| 👨‍🏫 **Teacher** | `teacher@school.com` | `teacher123` | Prof. Sarah Khan (Mathematics) |
-| 👨‍👩‍👧 **Parent** | `parent@school.com` | `parent123` | Tariq Mahmood |
-| 👑 **Super Admin** | `admin@school.com` | `admin123` | Dr. Arham Malik (Director) |
-| 🏫 **Principal** | `principal@school.com` | `principal123` | Mrs. Nuzhat Parveen |
-| 💳 **Accountant** | `accountant@school.com` | `accountant123` | Bilal Siddiqui |
-| 📝 **Examinations** | `exam@school.com` | `exam123` | Kamran Baig |
-| 📚 **Librarian** | `librarian@school.com` | `library123` | Ms. Saima Qureshi |
-| 🚌 **Transport Officer**| `transport@school.com` | `transport123`| Rashid Mehmood |
-| 👥 **HR Manager** | `hr@school.com` | `hr123` | Farhan Zaidi |
+> [!NOTE]
+> All initial mock users have been cleaned out. The Super Administrator can enroll new students, teachers, parents, and staff members directly from the **Register Student / Staff** interface in the Admin Portal.
 
 ---
 
