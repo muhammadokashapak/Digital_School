@@ -377,7 +377,23 @@ export default function App() {
       return <LmsPortal schoolData={schoolData} currentRole={currentRole} onStartQuiz={(qId) => setActiveQuizId(qId)} onTriggerNotification={triggerToast} />;
     }
     if (activeTab === 'attendance') {
-      return <AdminPortal schoolData={schoolData} students360List={students360} setStudents360List={setStudents360} onAddStudentAccount={handleAdminAddStudent} onOpenStudent360={(st) => setActiveStudent360(st)} onTriggerNotification={triggerToast} />;
+      return (
+        <AdminPortal 
+          schoolData={schoolData} 
+          userAccounts={userAccounts} 
+          setUserAccounts={setUserAccounts} 
+          students360List={students360} 
+          setStudents360List={setStudents360} 
+          attendanceList={attendanceList}
+          setAttendanceList={setAttendanceList}
+          feeInvoices={feeInvoices}
+          setFeeInvoices={setFeeInvoices}
+          onNavigateTab={(tab) => setActiveTab(tab)} 
+          onChangeRole={(role) => setCurrentRole(role)} 
+          onOpenStudent360={(st) => setActiveStudent360(st)} 
+          onTriggerNotification={triggerToast} 
+        />
+      );
     }
     if (activeTab === 'exams') {
       return <ExamPortal schoolData={schoolData} onOpenReportCard={(st) => { setActiveReportStudent(st || resolveCurrentStudentProfile()); setShowReportCard(true); }} onTriggerNotification={triggerToast} />;
@@ -404,7 +420,23 @@ export default function App() {
       return <CommunicationHub schoolData={schoolData} currentRole={currentRole} onTriggerNotification={triggerToast} />;
     }
     if (activeTab === 'management') {
-      return <AdminPortal schoolData={schoolData} students360List={students360} setStudents360List={setStudents360} onAddStudentAccount={handleAdminAddStudent} onOpenStudent360={(st) => setActiveStudent360(st)} onTriggerNotification={triggerToast} />;
+      return (
+        <AdminPortal 
+          schoolData={schoolData} 
+          userAccounts={userAccounts} 
+          setUserAccounts={setUserAccounts} 
+          students360List={students360} 
+          setStudents360List={setStudents360} 
+          attendanceList={attendanceList}
+          setAttendanceList={setAttendanceList}
+          feeInvoices={feeInvoices}
+          setFeeInvoices={setFeeInvoices}
+          onNavigateTab={(tab) => setActiveTab(tab)} 
+          onChangeRole={(role) => setCurrentRole(role)} 
+          onOpenStudent360={(st) => setActiveStudent360(st)} 
+          onTriggerNotification={triggerToast} 
+        />
+      );
     }
 
     // Default 'dashboard' view per Role
@@ -412,7 +444,23 @@ export default function App() {
       case 'SUPER_ADMIN':
       case 'SCHOOL_ADMIN':
       case 'PRINCIPAL':
-        return <AdminPortal schoolData={schoolData} students360List={students360} setStudents360List={setStudents360} onAddStudentAccount={handleAdminAddStudent} onOpenStudent360={(st) => setActiveStudent360(st)} onTriggerNotification={triggerToast} />;
+        return (
+          <AdminPortal 
+            schoolData={schoolData} 
+            userAccounts={userAccounts} 
+            setUserAccounts={setUserAccounts} 
+            students360List={students360} 
+            setStudents360List={setStudents360} 
+            attendanceList={attendanceList}
+            setAttendanceList={setAttendanceList}
+            feeInvoices={feeInvoices}
+            setFeeInvoices={setFeeInvoices}
+            onNavigateTab={(tab) => setActiveTab(tab)} 
+            onChangeRole={(role) => setCurrentRole(role)} 
+            onOpenStudent360={(st) => setActiveStudent360(st)} 
+            onTriggerNotification={triggerToast} 
+          />
+        );
       case 'TEACHER':
         return <DashboardOverview teacherProfile={teacherProfile} schoolData={schoolData} onChangeTab={setActiveTab} onTriggerNotification={triggerToast} />;
       case 'PARENT':
