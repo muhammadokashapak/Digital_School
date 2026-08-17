@@ -133,6 +133,17 @@ export const INITIAL_SCHOOL_DATA = {
     }
   ],
 
+  schoolIntelligence: {
+    totalStudents: 0,
+    overallAttendance: 100,
+    atRiskStudentsCount: 0,
+    academicAverage: 0
+  },
+
+  teacherWorkload: [
+    { name: "Muhammad Okasha", subject: "Computer Science", classesCount: 2, totalWeeklyHours: 18, assignedGrade: "Grade 9 & 10", status: "Optimal" }
+  ],
+
   messages: [],
 
   aiPresets: {

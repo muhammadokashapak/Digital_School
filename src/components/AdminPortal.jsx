@@ -20,7 +20,10 @@ export default function AdminPortal({
   onOpenStudent360, 
   onTriggerNotification 
 }) {
-  const { schoolIntelligence, teacherWorkload } = schoolData;
+  const { 
+    schoolIntelligence = { totalStudents: 0, overallAttendance: 100, atRiskStudentsCount: 0, academicAverage: 0 }, 
+    teacherWorkload = [] 
+  } = schoolData || {};
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentGrade, setNewStudentGrade] = useState('Class 9-A');
