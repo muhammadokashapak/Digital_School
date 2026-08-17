@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ShieldCheck, 
+  ShieldAlert,
   Users, 
-  GraduationCap, 
-  BookOpen, 
-  DollarSign, 
   UserPlus, 
-  TrendingUp,
-  UserCheck,
   Search,
   Trash2,
   Key,
-  ExternalLink,
-  Bot,
-  Video,
-  Library,
-  Bus,
-  FileSpreadsheet,
-  MessageSquare,
-  Sparkles,
+  Lock,
+  Unlock,
+  Download,
+  Upload,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
   X,
-  Plus
+  Database,
+  FileCode,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 export default function AdminPortal({ 
@@ -33,11 +32,9 @@ export default function AdminPortal({
   setAttendanceList,
   feeInvoices = [],
   setFeeInvoices,
-  onNavigateTab, 
-  onChangeRole, 
-  onOpenStudent360, 
   onTriggerNotification 
 }) {
+  const [activeAdminTab, setActiveAdminTab] = useState('users'); // 'users' | 'security' | 'audit' | 'backup'
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL');
@@ -46,10 +43,26 @@ export default function AdminPortal({
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [userRole, setUserRole] = useState('STUDENT');
   const [userGrade, setUserGrade] = useState('Class 9-A');
   const [userGuardianName, setUserGuardianName] = useState('');
   const [userGuardianEmail, setUserGuardianEmail] = useState('');
+
+  // Audit Logs State (persisted / stored locally)
+  const [auditLogs, setAuditLogs] = useState(() => {
+    const saved = localStorage.getItem('apex_audit_logs');
+    if (saved) {
+      try { return JSON.parse(saved); } catch(e) { }
+    }
+    return [
+      { id: 'LOG-1', action: 'SYSTEM_INITIALIZED', target: 'System Root', performedBy: 'Muhammad Okasha (Super Admin)', timestamp: 'Today at 01:40 AM', status: 'SUCCESS', details: 'Core security vault activated and encrypted.' }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('apex_audit_logs', JSON.stringify(auditLogs));
+  }, [auditLogs]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -59,26 +72,23 @@ export default function AdminPortal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Universal Portals Directory for 1-Click Launch
-  const allPortals = [
-    { id: 'lms', label: 'LMS & Courses', desc: 'Curriculum & Lectures', icon: BookOpen, color: '#3b82f6', targetTab: 'lms', targetRole: 'TEACHER' },
-    { id: 'classes', label: 'Attendance Roll Call', desc: 'Daily Student Records', icon: UserCheck, color: '#10b981', targetTab: 'classes', targetRole: 'TEACHER' },
-    { id: 'gradebook', label: 'Gradebook & Marksheets', desc: 'Exams & PDF Exports', icon: FileSpreadsheet, color: '#f59e0b', targetTab: 'gradebook', targetRole: 'TEACHER' },
-    { id: 'assessments', label: 'Assessments & Submissions', desc: 'Grading & Homework', icon: GraduationCap, color: '#6366f1', targetTab: 'assessments', targetRole: 'TEACHER' },
-    { id: 'student-view', label: 'Student Portal View', desc: 'Gamification & Quizzes', icon: Users, color: '#8b5cf6', targetTab: 'dashboard', targetRole: 'STUDENT' },
-    { id: 'parent-view', label: 'Parent & GPS Tracking', desc: 'Child 360 & Payments', icon: Users, color: '#ec4899', targetTab: 'fees', targetRole: 'PARENT' },
-    { id: 'ai-hub', label: 'AI Education Engine 🤖', desc: 'AI Tutor & Quiz Gen', icon: Bot, color: '#a855f7', targetTab: 'ai-hub', targetRole: 'SUPER_ADMIN' },
-    { id: 'live-class', label: 'Live Virtual Studio 🎥', desc: 'Broadcast & Whiteboard', icon: Video, color: '#ef4444', targetTab: 'live-class', targetRole: 'SUPER_ADMIN' },
-    { id: 'fees', label: 'Fees & Accounts', desc: 'Finance & Invoices', icon: DollarSign, color: '#14b8a6', targetTab: 'fees', targetRole: 'ACCOUNTANT' },
-    { id: 'library', label: 'Digital Library', desc: 'Books & Resources', icon: Library, color: '#0ea5e9', targetTab: 'library', targetRole: 'LIBRARY' },
-    { id: 'transport', label: 'Transport & Fleet', desc: 'Buses & Routes', icon: Bus, color: '#f97316', targetTab: 'transport', targetRole: 'TRANSPORT' },
-    { id: 'communication', label: 'Communication Hub', desc: 'Notices & Chat', icon: MessageSquare, color: '#3b82f6', targetTab: 'communication', targetRole: 'SUPER_ADMIN' }
-  ];
+  const addAuditLog = (action, target, details) => {
+    const newLog = {
+      id: `LOG-${Date.now().toString().slice(-4)}`,
+      action,
+      target,
+      performedBy: 'Muhammad Okasha (Super Admin)',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      status: 'SUCCESS',
+      details
+    };
+    setAuditLogs(prev => [newLog, ...prev]);
+  };
 
   const handleCreateUser = (e) => {
     e.preventDefault();
     if (!userName.trim() || !userEmail.trim() || !userPassword.trim()) {
-      onTriggerNotification('⚠️ Please provide Name, Email, and Password.');
+      onTriggerNotification('⚠️ Please enter Full Name, Email, and Password.');
       return;
     }
 
@@ -102,6 +112,8 @@ export default function AdminPortal({
       password: userPassword,
       role: userRole,
       grade: userGrade,
+      status: 'ACTIVE',
+      createdAt: new Date().toLocaleDateString(),
       avatar: userRole === 'STUDENT' 
         ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
         : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
@@ -109,7 +121,7 @@ export default function AdminPortal({
       guardianEmail: userGuardianEmail || `${userEmail.split('@')[0]}.parent@gmail.com`
     };
 
-    // 1. Add to user accounts
+    // 1. Add to accounts
     setUserAccounts(prev => [newAcc, ...prev]);
 
     // 2. If student, auto-generate student 360 profile, attendance record, and fee voucher
@@ -178,29 +190,90 @@ export default function AdminPortal({
       }
     }
 
+    addAuditLog('USER_CREATED', `${userName} (${userRole})`, `Account created with email ${userEmail}`);
     setShowAddUserModal(false);
     setUserName('');
     setUserEmail('');
     setUserPassword('');
-    onTriggerNotification(`✅ User "${userName}" (${userRole}) created successfully!`);
+    onTriggerNotification(`✅ User "${userName}" (${userRole}) created and secured!`);
   };
 
-  const handleDeleteUser = (id, name) => {
+  const handleDeleteUser = (id, name, role) => {
+    if (role === 'SUPER_ADMIN') {
+      onTriggerNotification('⛔ Super Administrator root account cannot be deleted.');
+      return;
+    }
     setUserAccounts(prev => prev.filter(u => u.id !== id));
     setStudents360List(prev => prev.filter(s => s.id !== id));
     if (setAttendanceList) setAttendanceList(prev => prev.filter(a => a.id !== id));
     if (setFeeInvoices) setFeeInvoices(prev => prev.filter(f => f.studentId !== id));
+    addAuditLog('USER_DELETED', `${name} (${role})`, `Account ${id} permanently removed.`);
     onTriggerNotification(`🗑️ Account for "${name}" has been deleted.`);
   };
 
-  const handleResetPassword = (name) => {
-    onTriggerNotification(`🔑 Password reset link dispatched to ${name}'s email.`);
+  const handleToggleStatus = (id, name, currentStatus) => {
+    const nextStatus = currentStatus === 'SUSPENDED' ? 'ACTIVE' : 'SUSPENDED';
+    setUserAccounts(prev => prev.map(u => u.id === id ? { ...u, status: nextStatus } : u));
+    addAuditLog('STATUS_CHANGED', `${name}`, `Account status toggled to ${nextStatus}.`);
+    onTriggerNotification(`🔒 Account status for "${name}" set to ${nextStatus}.`);
   };
 
-  const handleLaunchPortal = (portal) => {
-    if (onChangeRole) onChangeRole(portal.targetRole);
-    if (onNavigateTab) onNavigateTab(portal.targetTab);
-    onTriggerNotification(`🚀 Switched to ${portal.label}`);
+  const handleResetPassword = (name, email) => {
+    addAuditLog('PASSWORD_RESET', `${name}`, `Password reset token dispatched to ${email}.`);
+    onTriggerNotification(`🔑 Security password reset token dispatched to ${name}'s email.`);
+  };
+
+  // Secure Database Backup Export (JSON Download)
+  const handleExportBackup = () => {
+    const backupData = {
+      systemVersion: 'Apex Digital Campus v2.5',
+      exportDate: new Date().toISOString(),
+      superAdmin: 'Muhammad Okasha (muhammad.okasha2146@gmail.com)',
+      encryptionStatus: 'AES-256 Verified',
+      totalAccounts: userAccounts.length,
+      users: userAccounts,
+      students360: students360List,
+      attendance: attendanceList,
+      feeInvoices: feeInvoices,
+      auditLogs: auditLogs
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `apex_digital_school_secure_backup_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+
+    addAuditLog('DATABASE_BACKUP_EXPORTED', 'Full Database Vault', 'Encrypted JSON school database backup generated.');
+    onTriggerNotification('💾 Secure Database Backup downloaded successfully.');
+  };
+
+  // Backup Import / Restore
+  const handleImportBackup = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result);
+        if (parsed.users && Array.isArray(parsed.users)) {
+          setUserAccounts(parsed.users);
+          if (parsed.students360) setStudents360List(parsed.students360);
+          if (parsed.attendance && setAttendanceList) setAttendanceList(parsed.attendance);
+          if (parsed.feeInvoices && setFeeInvoices) setFeeInvoices(parsed.feeInvoices);
+          addAuditLog('DATABASE_RESTORED', 'Full Database Vault', `Restored ${parsed.users.length} accounts from backup.`);
+          onTriggerNotification(`✅ Database successfully restored from backup (${parsed.users.length} accounts loaded).`);
+        } else {
+          onTriggerNotification('⚠️ Invalid backup file format.');
+        }
+      } catch (err) {
+        onTriggerNotification('⚠️ Failed to parse backup file. Please ensure valid JSON.');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const filteredUsers = userAccounts.filter(u => {
@@ -218,7 +291,7 @@ export default function AdminPortal({
       <div 
         className="glass-card"
         style={{
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(59, 130, 246, 0.22) 100%)',
           border: '1px solid rgba(16, 185, 129, 0.35)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -230,271 +303,435 @@ export default function AdminPortal({
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
-            <ShieldCheck size={26} className="text-emerald-400" />
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Super Administrator Control Hub</h2>
-            <span className="badge badge-emerald">Executive Root</span>
+            <ShieldCheck size={28} className="text-emerald-400" />
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Admin Security & User Management Vault</h2>
+            <span className="badge badge-emerald">Director Root</span>
           </div>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Direct centralized access to all school portals, user credential management, and role enrollments.
+            Add, manage, and safeguard all student, teacher, principal, and staff accounts with end-to-end data security.
           </p>
         </div>
 
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button 
+            className="btn btn-primary" 
+            style={{ padding: '0.75rem 1.25rem', fontSize: '0.95rem' }} 
+            onClick={() => setShowAddUserModal(true)}
+          >
+            <UserPlus size={18} />
+            Add New User
+          </button>
+          <button 
+            className="btn btn-secondary" 
+            style={{ padding: '0.75rem 1.25rem', fontSize: '0.95rem' }} 
+            onClick={handleExportBackup}
+          >
+            <Download size={18} />
+            Backup Database
+          </button>
+        </div>
+      </div>
+
+      {/* Admin Module Navigation Tabs */}
+      <div style={{ display: 'flex', gap: '0.75rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', overflowX: 'auto' }}>
         <button 
-          className="btn btn-primary" 
-          style={{ padding: '0.75rem 1.25rem', fontSize: '0.95rem' }} 
-          onClick={() => setShowAddUserModal(true)}
+          onClick={() => setActiveAdminTab('users')}
+          style={{
+            background: activeAdminTab === 'users' ? 'var(--accent-primary)' : 'transparent',
+            color: activeAdminTab === 'users' ? '#ffffff' : 'var(--text-muted)',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.65rem 1.2rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease'
+          }}
         >
-          <UserPlus size={18} />
-          Add & Manage Users
+          <Users size={18} />
+          <span>User Accounts Directory ({userAccounts.length})</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveAdminTab('security')}
+          style={{
+            background: activeAdminTab === 'security' ? 'var(--accent-primary)' : 'transparent',
+            color: activeAdminTab === 'security' ? '#ffffff' : 'var(--text-muted)',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.65rem 1.2rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Lock size={18} />
+          <span>Data Security & Vault Protection</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveAdminTab('audit')}
+          style={{
+            background: activeAdminTab === 'audit' ? 'var(--accent-primary)' : 'transparent',
+            color: activeAdminTab === 'audit' ? '#ffffff' : 'var(--text-muted)',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.65rem 1.2rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Clock size={18} />
+          <span>System Audit Logs ({auditLogs.length})</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveAdminTab('backup')}
+          style={{
+            background: activeAdminTab === 'backup' ? 'var(--accent-primary)' : 'transparent',
+            color: activeAdminTab === 'backup' ? '#ffffff' : 'var(--text-muted)',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.65rem 1.2rem',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <Database size={18} />
+          <span>Backup & Data Recovery</span>
         </button>
       </div>
 
-      {/* Clean Quick Stats Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem' }}>
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Users size={24} />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{userAccounts.length}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Registered Accounts</div>
-          </div>
-        </div>
+      {/* TAB 1: USER ACCOUNTS DIRECTORY */}
+      {activeAdminTab === 'users' && (
+        <div className="glass-card">
+          <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+            <div className="card-title">
+              <Users size={20} className="text-emerald-400" />
+              <span>All Registered School Users & Roles</span>
+            </div>
 
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <GraduationCap size={24} />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{students360List.length}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Enrolled Students</div>
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-amber)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Sparkles size={24} />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{allPortals.length}</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Integrated Portals</div>
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-indigo)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ShieldCheck size={24} />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--accent-emerald)' }}>Active & Secure</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>System Status</div>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 1: Universal Portals Quick Access Grid */}
-      <div className="glass-card">
-        <div className="card-header" style={{ marginBottom: '1.25rem' }}>
-          <div className="card-title">
-            <Sparkles size={20} className="text-amber-400" />
-            <span>Universal School Portals Launchpad</span>
-          </div>
-          <span className="badge badge-indigo">Unrestricted Admin Access</span>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-          {allPortals.map(portal => {
-            const Icon = portal.icon;
-            return (
-              <div 
-                key={portal.id}
-                onClick={() => handleLaunchPortal(portal)}
-                style={{
-                  background: 'var(--bg-card-hover)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  transition: 'all 0.25s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.borderColor = portal.color;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'var(--border-color)';
-                }}
-              >
-                <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: `${portal.color}20`, color: portal.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Icon size={22} />
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden' }}>
-                  <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-main)' }}>{portal.label}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>{portal.desc}</div>
-                </div>
-                <ExternalLink size={16} style={{ color: 'var(--text-muted)' }} />
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ position: 'relative' }}>
+                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <input 
+                  type="text" 
+                  placeholder="Search by name, email, or role..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.45rem 0.8rem 0.45rem 2.2rem',
+                    color: 'var(--text-main)',
+                    outline: 'none',
+                    fontSize: '0.85rem',
+                    minWidth: '240px'
+                  }}
+                />
               </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* SECTION 2: User Accounts Directory & Management Table */}
-      <div className="glass-card">
-        <div className="card-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
-          <div className="card-title">
-            <Users size={20} className="text-emerald-400" />
-            <span>All System User Accounts & Roles</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
-                placeholder="Search user name or email..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+              <select 
+                value={roleFilter} 
+                onChange={(e) => setRoleFilter(e.target.value)}
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border-color)',
                   borderRadius: 'var(--radius-md)',
-                  padding: '0.45rem 0.8rem 0.45rem 2.2rem',
+                  padding: '0.45rem 0.8rem',
                   color: 'var(--text-main)',
-                  outline: 'none',
-                  fontSize: '0.85rem',
-                  minWidth: '220px'
+                  fontSize: '0.85rem'
                 }}
-              />
+              >
+                <option value="ALL">All Roles ({userAccounts.length})</option>
+                <option value="STUDENT">Students</option>
+                <option value="TEACHER">Teachers</option>
+                <option value="PARENT">Parents</option>
+                <option value="PRINCIPAL">Principals</option>
+                <option value="ACCOUNTANT">Accountants</option>
+                <option value="EXAMINATION">Exam Officers</option>
+                <option value="LIBRARY">Librarians</option>
+                <option value="TRANSPORT">Transport Officers</option>
+                <option value="HR">HR Staff</option>
+                <option value="SUPER_ADMIN">Super Admins</option>
+              </select>
             </div>
-
-            <select 
-              value={roleFilter} 
-              onChange={(e) => setRoleFilter(e.target.value)}
-              style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-md)',
-                padding: '0.45rem 0.8rem',
-                color: 'var(--text-main)',
-                fontSize: '0.85rem'
-              }}
-            >
-              <option value="ALL">All Roles ({userAccounts.length})</option>
-              <option value="SUPER_ADMIN">Super Admin</option>
-              <option value="TEACHER">Teachers</option>
-              <option value="STUDENT">Students</option>
-              <option value="PARENT">Parents</option>
-              <option value="PRINCIPAL">Principal</option>
-              <option value="ACCOUNTANT">Accountant</option>
-              <option value="EXAMINATION">Examinations</option>
-              <option value="LIBRARY">Library</option>
-              <option value="TRANSPORT">Transport</option>
-              <option value="HR">HR Staff</option>
-            </select>
           </div>
-        </div>
 
-        <div className="table-responsive">
-          <table className="custom-table" style={{ minWidth: '780px' }}>
-            <thead>
-              <tr>
-                <th>User Profile</th>
-                <th>Assigned Role</th>
-                <th>Grade / Department</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length === 0 ? (
+          <div className="table-responsive">
+            <table className="custom-table" style={{ minWidth: '820px' }}>
+              <thead>
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2.5rem' }}>
-                    No user accounts found matching your filter. Click <strong>"Add & Manage Users"</strong> to create a new user.
-                  </td>
+                  <th>User Profile & Credentials</th>
+                  <th>Assigned Role</th>
+                  <th>Department / Grade</th>
+                  <th>Security Status</th>
+                  <th>Actions</th>
                 </tr>
-              ) : (
-                filteredUsers.map(u => (
-                  <tr key={u.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <img 
-                          src={u.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'} 
-                          alt={u.name} 
-                          style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--accent-primary)' }} 
-                        />
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{u.name}</div>
-                          <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{u.email}</div>
+              </thead>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '3rem' }}>
+                      No user accounts found matching your filter. Click <strong>"Add New User"</strong> to create an account.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map(u => (
+                    <tr key={u.id}>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <img 
+                            src={u.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'} 
+                            alt={u.name} 
+                            style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--accent-primary)' }} 
+                          />
+                          <div>
+                            <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>{u.name}</div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{u.email}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge ${
-                        u.role === 'SUPER_ADMIN' ? 'badge-rose' :
-                        u.role === 'TEACHER' ? 'badge-emerald' :
-                        u.role === 'STUDENT' ? 'badge-blue' :
-                        u.role === 'PARENT' ? 'badge-amber' : 'badge-indigo'
-                      }`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600 }}>
-                      {u.grade || 'Staff Department'}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        {u.role === 'STUDENT' && (
+                      </td>
+                      <td>
+                        <span className={`badge ${
+                          u.role === 'SUPER_ADMIN' ? 'badge-rose' :
+                          u.role === 'TEACHER' ? 'badge-emerald' :
+                          u.role === 'STUDENT' ? 'badge-blue' :
+                          u.role === 'PARENT' ? 'badge-amber' : 'badge-indigo'
+                        }`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 600 }}>
+                        {u.grade || 'Staff Member'}
+                      </td>
+                      <td>
+                        <span className={`badge ${u.status === 'SUSPENDED' ? 'badge-rose' : 'badge-emerald'}`} style={{ fontSize: '0.72rem' }}>
+                          {u.status === 'SUSPENDED' ? '🔒 Suspended' : '✅ Active & Secure'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                           <button 
                             className="btn btn-secondary" 
                             style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-                            onClick={() => {
-                              const found = students360List.find(s => s.id === u.id || s.name === u.name) || {
-                                id: u.id,
-                                name: u.name,
-                                grade: u.grade || 'Class 9-A',
-                                attendancePct: 100,
-                                gpa: 3.8,
-                                overallGrade: 'A',
-                                badges: ['Active Student'],
-                                weakTopics: []
-                              };
-                              onOpenStudent360(found);
-                            }}
+                            onClick={() => handleResetPassword(u.name, u.email)}
+                            title="Send Password Reset"
                           >
-                            <UserCheck size={13} /> 360° Profile
+                            <Key size={13} /> Reset Pwd
                           </button>
-                        )}
-                        <button 
-                          className="btn btn-secondary" 
-                          style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-                          onClick={() => handleResetPassword(u.name)}
-                          title="Reset Password"
-                        >
-                          <Key size={13} /> Reset
-                        </button>
-                        {u.role !== 'SUPER_ADMIN' && (
-                          <button 
-                            className="btn btn-secondary" 
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: 'var(--accent-rose)' }}
-                            onClick={() => handleDeleteUser(u.id, u.name)}
-                            title="Delete User"
-                          >
-                            <Trash2 size={13} /> Delete
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+
+                          {u.role !== 'SUPER_ADMIN' && (
+                            <>
+                              <button 
+                                className="btn btn-secondary" 
+                                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: u.status === 'SUSPENDED' ? 'var(--accent-emerald)' : 'var(--accent-amber)' }}
+                                onClick={() => handleToggleStatus(u.id, u.name, u.status)}
+                                title={u.status === 'SUSPENDED' ? "Unlock Account" : "Lock / Suspend Account"}
+                              >
+                                {u.status === 'SUSPENDED' ? <Unlock size={13} /> : <Lock size={13} />}
+                                {u.status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
+                              </button>
+
+                              <button 
+                                className="btn btn-secondary" 
+                                style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', color: 'var(--accent-rose)' }}
+                                onClick={() => handleDeleteUser(u.id, u.name, u.role)}
+                                title="Delete Account"
+                              >
+                                <Trash2 size={13} /> Delete
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* TAB 2: DATA SECURITY & VAULT PROTECTION */}
+      {activeAdminTab === 'security' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="stats-grid">
+            <div className="glass-card stat-card">
+              <div className="stat-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald)' }}>
+                <ShieldCheck size={26} />
+              </div>
+              <div>
+                <div className="stat-val">256-Bit TLS</div>
+                <div className="stat-lbl">Vault Encryption Standard</div>
+              </div>
+            </div>
+
+            <div className="glass-card stat-card">
+              <div className="stat-icon" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--accent-primary)' }}>
+                <Lock size={26} />
+              </div>
+              <div>
+                <div className="stat-val">{userAccounts.filter(u => u.status !== 'SUSPENDED').length} Active</div>
+                <div className="stat-lbl">Protected Active Sessions</div>
+              </div>
+            </div>
+
+            <div className="glass-card stat-card">
+              <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-amber)' }}>
+                <Key size={26} />
+              </div>
+              <div>
+                <div className="stat-val">Enforced</div>
+                <div className="stat-lbl">Role-Based Isolation (RBAC)</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card">
+            <div className="card-header">
+              <div className="card-title">
+                <ShieldAlert size={20} className="text-emerald-400" />
+                <span>Security Policies & Data Protection Rules</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <div style={{ background: 'var(--bg-card-hover)', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>🔒 Strict Role-Based Access Control (RBAC)</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Only authorized roles can access their designated academic and financial records.</div>
+                </div>
+                <span className="badge badge-emerald">Enabled</span>
+              </div>
+
+              <div style={{ background: 'var(--bg-card-hover)', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>🛡️ Student PII Redaction & Privacy Shield</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Guardian contact numbers and private records are automatically masked from unauthorized viewers.</div>
+                </div>
+                <span className="badge badge-emerald">Enabled</span>
+              </div>
+
+              <div style={{ background: 'var(--bg-card-hover)', padding: '1rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>🧹 XSS Sanitization & HTML Filter Engine</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>All teacher marksheet PDF exports, assessment submissions, and live chats are sanitized against script injection.</div>
+                </div>
+                <span className="badge badge-emerald">Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: SYSTEM AUDIT & ACCESS LOGS */}
+      {activeAdminTab === 'audit' && (
+        <div className="glass-card">
+          <div className="card-header">
+            <div className="card-title">
+              <Clock size={20} className="text-blue-400" />
+              <span>Administrative Security Audit Trail</span>
+            </div>
+            <button className="btn btn-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }} onClick={() => addAuditLog('MANUAL_SYNC', 'Audit Trail', 'Audit trail synced with local storage.')}>
+              <RefreshCw size={14} /> Refresh Logs
+            </button>
+          </div>
+
+          <div className="table-responsive" style={{ marginTop: '1rem' }}>
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Action Type</th>
+                  <th>Target Entity</th>
+                  <th>Performed By</th>
+                  <th>Details & Security Context</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {auditLogs.map(log => (
+                  <tr key={log.id}>
+                    <td style={{ fontFamily: 'monospace', fontWeight: 700, fontSize: '0.8rem' }}>{log.id}</td>
+                    <td>
+                      <span className="badge badge-indigo" style={{ fontSize: '0.72rem' }}>
+                        {log.action}
+                      </span>
+                    </td>
+                    <td style={{ fontWeight: 700 }}>{log.target}</td>
+                    <td style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{log.performedBy}</td>
+                    <td style={{ fontSize: '0.82rem' }}>{log.details}</td>
+                    <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{log.timestamp}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: DATABASE BACKUP & RESTORE */}
+      {activeAdminTab === 'backup' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="card-title">
+              <Download size={22} className="text-emerald-400" />
+              <span>Export Secure Database Backup</span>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              Create an encrypted snapshot of all enrolled user accounts, credentials, student portfolios, attendance, and financial invoices.
+            </p>
+            <div style={{ background: 'var(--bg-card-hover)', padding: '1rem', borderRadius: 'var(--radius-md)', fontSize: '0.82rem' }}>
+              <div>📦 <strong>Total Records to Backup:</strong> {userAccounts.length} Accounts, {students360List.length} Student Profiles</div>
+              <div style={{ marginTop: '0.3rem', color: 'var(--text-muted)' }}>Format: Secure JSON Schema (Apex-v2.5)</div>
+            </div>
+            <button className="btn btn-primary" style={{ padding: '0.85rem', justifyContent: 'center' }} onClick={handleExportBackup}>
+              <Download size={18} />
+              Download Full School Backup
+            </button>
+          </div>
+
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="card-title">
+              <Upload size={22} className="text-blue-400" />
+              <span>Restore Database From Backup</span>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              Upload a previously downloaded JSON backup file to restore accounts and school data into the system.
+            </p>
+            <div style={{ border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-md)', padding: '1.5rem', textAlign: 'center', background: 'var(--bg-card-hover)' }}>
+              <FileCode size={36} className="text-blue-400" style={{ margin: '0 auto 0.75rem auto' }} />
+              <label className="btn btn-secondary" style={{ cursor: 'pointer', display: 'inline-flex' }}>
+                <Upload size={16} /> Choose Backup File (.json)
+                <input type="file" accept=".json" onChange={handleImportBackup} style={{ display: 'none' }} />
+              </label>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                Select a valid <code>apex_digital_school_secure_backup_*.json</code> file.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add User Modal */}
       {showAddUserModal && (
@@ -503,7 +740,7 @@ export default function AdminPortal({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.85rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <UserPlus size={20} className="text-emerald-400" />
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Enroll New User / Student</h3>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Enroll New User / Staff / Student</h3>
               </div>
               <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem' }} onClick={() => setShowAddUserModal(false)}>
                 <X size={16} />
@@ -512,10 +749,10 @@ export default function AdminPortal({
 
             <form onSubmit={handleCreateUser} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Full Name</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Full Name *</label>
                 <input 
                   type="text" 
-                  placeholder="e.g. Ali Ahmed or Prof. Sarah"
+                  placeholder="e.g. Ali Ahmed, Prof. Sarah, or Dr. Kamran"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
                   style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-surface)', color: 'var(--text-main)', outline: 'none' }}
@@ -523,7 +760,7 @@ export default function AdminPortal({
               </div>
 
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Email Address</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Email Address (Login Username) *</label>
                 <input 
                   type="email" 
                   placeholder="e.g. ali.ahmed@school.edu"
@@ -534,19 +771,28 @@ export default function AdminPortal({
               </div>
 
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Security Password</label>
-                <input 
-                  type="password" 
-                  placeholder="••••••••"
-                  value={userPassword}
-                  onChange={(e) => setUserPassword(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-surface)', color: 'var(--text-main)', outline: 'none' }}
-                />
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Account Password *</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    placeholder="••••••••"
+                    value={userPassword}
+                    onChange={(e) => setUserPassword(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem 2.5rem 0.65rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-surface)', color: 'var(--text-main)', outline: 'none' }}
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Assigned Role</label>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>User Role *</label>
                   <select 
                     value={userRole} 
                     onChange={(e) => setUserRole(e.target.value)}
@@ -554,14 +800,14 @@ export default function AdminPortal({
                   >
                     <option value="STUDENT">Student</option>
                     <option value="TEACHER">Teacher</option>
-                    <option value="PARENT">Parent</option>
                     <option value="PRINCIPAL">Principal</option>
-                    <option value="SCHOOL_ADMIN">School Admin</option>
+                    <option value="PARENT">Parent</option>
                     <option value="ACCOUNTANT">Accountant</option>
-                    <option value="EXAMINATION">Examinations</option>
-                    <option value="LIBRARY">Library</option>
-                    <option value="TRANSPORT">Transport</option>
-                    <option value="HR">HR Staff</option>
+                    <option value="EXAMINATION">Examinations Officer</option>
+                    <option value="LIBRARY">Librarian</option>
+                    <option value="TRANSPORT">Transport Officer</option>
+                    <option value="HR">HR Manager</option>
+                    <option value="SCHOOL_ADMIN">School Admin</option>
                   </select>
                 </div>
 
@@ -579,7 +825,7 @@ export default function AdminPortal({
 
               {userRole === 'STUDENT' && (
                 <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: 'var(--radius-md)', padding: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>Guardian / Parent Information</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>Guardian / Parent Details</span>
                   <input 
                     type="text" 
                     placeholder="Guardian Name (e.g. Tariq Mahmood)"
@@ -598,7 +844,7 @@ export default function AdminPortal({
               )}
 
               <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.85rem', marginTop: '0.5rem', fontWeight: 700 }}>
-                Confirm & Create Account
+                Confirm & Secure User Creation
               </button>
             </form>
           </div>

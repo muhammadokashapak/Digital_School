@@ -30,21 +30,19 @@ export default function Sidebar({ activeTab, setActiveTab, currentRole }) {
     { id: 'management', label: 'Super Admin Control', icon: Users, roles: ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL'] }
   ];
 
-  const teacherMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['TEACHER'] },
-    { id: 'classes', label: 'My Classes', icon: Users, roles: ['TEACHER'] },
-    { id: 'courses', label: 'My Courses', icon: BookOpen, roles: ['TEACHER'] },
-    { id: 'assessments', label: 'Assessments', icon: CheckSquare, roles: ['TEACHER'] },
-    { id: 'gradebook', label: 'Gradebook', icon: FileSpreadsheet, roles: ['TEACHER'] },
-    { id: 'live-class', label: 'Live Studio 🎥', icon: Video, roles: ['TEACHER'] },
-    { id: 'communication', label: 'Messages', icon: MessageSquare, roles: ['TEACHER'] },
-    { id: 'ai-hub', label: 'AI Assistant', icon: Bot, roles: ['TEACHER'] }
+  const superAdminMenuItems = [
+    { id: 'dashboard', label: 'User Directory & Enrollment', icon: Users, roles: ['SUPER_ADMIN'] },
+    { id: 'communication', label: 'System Announcements', icon: MessageSquare, roles: ['SUPER_ADMIN'] }
   ];
 
-  const menuItems = currentRole === 'TEACHER' ? teacherMenuItems : defaultMenuItems;
+  const menuItems = currentRole === 'TEACHER' 
+    ? teacherMenuItems 
+    : currentRole === 'SUPER_ADMIN' 
+      ? superAdminMenuItems 
+      : defaultMenuItems;
 
   const filteredItems = menuItems.filter(item => item.roles.includes(currentRole));
-  const showAiPromo = ['SUPER_ADMIN', 'SCHOOL_ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(currentRole);
+  const showAiPromo = ['STUDENT', 'TEACHER', 'PRINCIPAL'].includes(currentRole);
 
   return (
     <aside className="sidebar">
